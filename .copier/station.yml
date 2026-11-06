@@ -1,7 +1,7 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
-_commit: b51eabba1711c46675b7fe328f7c29ac6401dd15
+_commit: 655cf83c6d5bfddf3906996c2372540b20ae0975
 _src_path: gh:oryon-dominik/templates
-_version: 2026.11.33
+_version: 2026.11.40
 author_email: hallo+legal@cyberise.de
 author_name: cyberise GmbH
 django: false
