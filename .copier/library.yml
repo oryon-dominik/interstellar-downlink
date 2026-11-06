@@ -1,0 +1,19 @@
+# Changes here will be overwritten by Copier; answer questions in the template instead.
+_commit: b51eabba1711c46675b7fe328f7c29ac6401dd15
+_src_path: gh:oryon-dominik/templates
+_version: 2026.11.33
+author_email: hallo+legal@cyberise.de
+author_name: cyberise GmbH
+browser_tests: false
+distribution_name: cyberise-downlink
+github_org: oryon-dominik
+layer: library
+module_name: downlink
+project_description: 'Multi-process Python logging: one line format, shared rotating
+    files, crash capture, a live console switch'
+project_name: downlink
+python_version: '3.14'
+release: true
+release_trigger: dispatch
+repository_name: interstellar-downlink
+station_license: mit

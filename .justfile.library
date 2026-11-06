@@ -1,0 +1,45 @@
+# Recipes for a project that ships a pure-Python wheel, imported by the base .justfile.
+#
+# Copier renders only the name below. Everything inside the raw block uses just's
+# own brace syntax, which must reach the generated file untouched.
+
+_package := "downlink"
+
+
+[group('application')]
+[doc('Set the project up: dependencies and hooks')]
+@install: install-dependencies
+    -prek install --hook-type pre-commit --hook-type commit-msg
+
+
+[group('quality')]
+[no-exit-message]
+[doc('Run the test suite')]
+[positional-arguments]
+@test *args:
+    uv run pytest "$@"
+
+
+[group('quality')]
+[doc('Lint and check formatting')]
+@lint:
+    uv run ruff check .
+    uv run ruff format --check .
+
+
+[group('quality')]
+[doc('Type-check with ty — reports only; the exit code stays 0 until the library is clean')]
+@types:
+    -uvx ty check --python .venv
+
+
+[group('maintenance')]
+[doc('Build the wheel')]
+@build:
+    uv build
+
+
+[group('maintenance')]
+[doc('Install all dependencies: the extras and the dependency groups')]
+@install-dependencies:
+    uv sync --all-extras --all-groups

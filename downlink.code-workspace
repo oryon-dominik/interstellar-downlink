@@ -1,0 +1,87 @@
+{
+    "folders": [
+        {
+            "path": "."
+        }
+    ],
+    "extensions": {
+        "recommendations": [
+            "ms-python.python",
+            "astral-sh.ty",
+            "charliermarsh.ruff",
+            "fill-labs.dependi",
+            "vivaxy.vscode-conventional-commits",
+            "maattdd.gitless",
+
+            // svg preview
+            "simonsiefke.svg-preview"
+
+            // optional — pairing, prose wrapping and markdown previews
+            // "ms-vsliveshare.vsliveshare",
+            // "stkb.rewrap",
+            // "bierner.markdown-footnotes",
+            // "bierner.markdown-checkbox",
+            // "bierner.markdown-mermaid",
+        ]
+    },
+    "settings": {
+        // * files ////////////////////////////////////////////////////////////
+        "files.autoSave": "onFocusChange",
+        "files.eol": "\n",
+        "files.exclude": {
+            "**/__pycache__": true,
+            "**/.pytest_cache": true,
+            "**/.ruff_cache/": true,
+            "**/.hypothesis/": true,
+            "**/.ipynb_checkpoints/": true,
+            "**/.ipython/": true,
+            "**/.vscode/": true,
+            "**/.venv": true,
+            "**/temp": true,
+            "**/htmlcov": true,
+            "**/.coverage": true
+        },
+        "files.associations": {
+            "*.py": "python",
+            "*.toml": "toml"
+        },
+        "explorer.fileNesting.patterns": {
+            "pyproject.toml": "uv.lock"
+        },
+        // Show source control worktrees in the explorer.
+        "scm.repositories.explorer": true,
+
+        // * python ///////////////////////////////////////////////////////////
+        "python.terminal.activateEnvironment": true,
+        "[python]": {
+            "editor.tabSize": 4,
+            "editor.insertSpaces": true,
+            "editor.defaultFormatter": "charliermarsh.ruff"
+        },
+        // ruff sorts imports into the sections pyproject.toml declares; the extension's own pass would not.
+        "ruff.organizeImports": false,
+        "python.testing.unittestEnabled": false,
+        "python.testing.pytestEnabled": true,
+        // Rediscovering the whole suite on every save costs more than it tells.
+        "python.testing.autoTestDiscoverOnSaveEnabled": false
+    },
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "pytest",
+                "type": "debugpy",
+                "request": "launch",
+                "module": "pytest",
+                "cwd": "${workspaceFolder}",
+                "console": "integratedTerminal",
+                "args": [
+                    // "test",
+                ],
+                "env": {
+                    // "ANY_ENV": "something"  // injects into the debug run; not needed for what the .env files carry
+                }
+            }
+        ]
+    }
+}

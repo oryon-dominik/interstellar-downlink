@@ -1,0 +1,76 @@
+# The hook set of a Python project with a pyproject.toml at its root.
+# A bare `prek install` reads these; without them it lays down the pre-commit shim
+# alone, and the commit-msg hooks below never run.
+default_install_hook_types: [pre-commit, commit-msg]
+repos:
+# First, before any fixer touches the tree: wait up to 15 s while a sync or a
+# push holds this repository, then refuse and name the holder. A machine without
+# the `stations` command skips it.
+-   repo: local
+    hooks:
+    -   id: repository-lock
+        name: wait for the repository lock
+        language: system
+        entry: sh -c 'command -v stations >/dev/null 2>&1 || exit 0; exec stations work wait'
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+    -   id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+    -   id: check-added-large-files
+        args: ['--maxkb=25000']
+# No secret in the tree — from the first commit on.
+-   repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+    -   id: gitleaks
+
+# The target follows python_version. Raising the Python floor past what this
+# pyupgrade rev knows makes the hook reject its own flag on every commit —
+# raise the rev in the same move.
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.21.2
+    hooks:
+    -   id: pyupgrade
+        args: [--py314-plus]
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.16.8
+    hooks:
+    -   id: ruff-check
+        args: ["--config=pyproject.toml"]
+    -   id: ruff-format
+        args: ["--config=pyproject.toml"]
+-   repo: https://github.com/opensource-nepal/commitlint
+    rev: v2.0.0
+    hooks:
+    -   id: commitlint
+        entry: commitlint --max-header-length 112 --file
+# commitlint has no switch for a required scope. The changelog groups commits by
+# scope, and a header without one drops out of it without a word. --multiline
+# anchors the pattern to the header; per line, every body line would be read as one.
+-   repo: local
+    hooks:
+    -   id: commit-scope
+        name: commit header names a scope
+        language: pygrep
+        entry: '\A\w+!?:'
+        args: [--multiline]
+        stages: [commit-msg]
+-   repo: https://github.com/astral-sh/uv-pre-commit
+    rev: 0.12.17
+    hooks:
+    -   id: uv-lock
+-   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update
+    rev: v0.10.0
+    hooks:
+    -   id: pre-commit-update
+        args:
+        -   "--config-file=pyproject.toml"
+        -   "--dry-run"
+        -   "--dry-run-mode"
+        -   "warn"

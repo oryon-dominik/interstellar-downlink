@@ -1,0 +1,100 @@
+# Mint a release: the CalVer number the tags call for, stamped into pyproject.toml
+# and uv.lock, a changelog git-cliff writes from the commits since the last tag,
+# and the tag itself. Nothing is uploaded anywhere — publishing stays a deliberate act.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "What kind of release to mint"
+        required: true
+        type: choice
+        options:
+          - default
+          - dev
+          - rc
+          - alpha
+          - beta
+          - post
+
+# One release at a time: two runs reading the same tags would mint the same number.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    uses: ./.github/workflows/package-test.yml
+
+  version:
+    # After the tests, not beside them: a tag over a red suite is a release of a broken package.
+    needs: [test]
+    # Dispatched from another branch, it would tag untested code and prune trunk's tags.
+    if: github.ref == 'refs/heads/trunk'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      # The zone a release is dated in: which month it carries is read by people, and
+      # UTC dates the first hours of every month to the one before.
+      RELEASE_TIMEZONE: Europe/Berlin
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0  # the tags are the release series, and git-cliff needs the commits since the last one
+
+      # Pinned exactly: setup-uv stopped publishing moving major tags after v7.
+      - uses: astral-sh/setup-uv@v10.1.0
+
+      - name: Mint the version
+        id: version
+        run: |
+          case "${{ inputs.mode || 'default' }}" in
+            dev) marker="--dev" ;;
+            rc) marker="--rc" ;;
+            alpha) marker="--alpha" ;;
+            beta) marker="--beta" ;;
+            post) marker="--post" ;;
+            *) marker="" ;;
+          esac
+          VERSION=$(uv run --no-project python scripts/version.py --next $marker)
+          sed --in-place --expression "/^\[project\]/,/^\[/ s/^version = \".*\"/version = \"${VERSION}\"/" pyproject.toml
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # The version above changed, so the lockfile describes a project that no longer exists.
+      - name: Update the lockfile
+        run: uv lock
+
+      - uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b  # v2.90.1
+        with:
+          tool: git-cliff
+
+      - name: Write the changelog
+        # The first release leaves blank lines at the end of the file, and the repository's own
+        # end-of-file-fixer rejects the commit; command substitution drops every trailing newline.
+        run: |
+          git-cliff --config pyproject.toml --prepend CHANGES.md --unreleased --tag ${{ steps.version.outputs.version }}
+          printf '%s\n' "$(< CHANGES.md)" > CHANGES.md
+
+      - name: Commit and tag the release
+        run: |
+          git config user.name "@ci-bot"
+          git config user.email "ci-bot@users.noreply.github.com"
+          git add pyproject.toml uv.lock CHANGES.md
+          git commit --trailer "cyberise-producer: ci/release" --message="chore(release): tag version=${{ steps.version.outputs.version }} [skip ci]"
+          # Trunk can move while this job runs; rebase onto it and retry. The tag follows the
+          # push, so it names the commit trunk carries.
+          for attempt in 1 2 3; do
+            if git pull --rebase && git push; then
+              git tag --annotate ${{ steps.version.outputs.version }} --message="Release ${{ steps.version.outputs.version }}"
+              git push origin ${{ steps.version.outputs.version }}
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1

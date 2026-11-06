@@ -1,0 +1,67 @@
+# -- GIT is ignoring --
+
+# Logs — at any depth below logs/, the test suite's own logs/test/ included,
+# with the backups and lock files rotation leaves beside them
+**/logs/**/*.log
+**/logs/**/*.log.*
+**/logs/**/*.lock
+
+# Editor settings
+.vscode/
+.idea/
+
+# Environment — every env file, whatever its name; the *.env.template beside it stays
+.env
+*.env
+# A git credential-store file: read tokens in plaintext
+git-credentials
+.secretkey
+.secrets
+.venv/
+
+# temporary files
+temp/
+# An operation's working material — clones, checkouts, run residue. Disposable,
+# rebuilt by the next run; working directories go here.
+debris/
+
+# Github
+.github/.secrets
+.github/.variables
+
+# ===================
+## Python
+# ===================
+__pycache__
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache
+.ruff_cache
+# SQLite files a package sandbox or a local run writes
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+.ipython/
+
+# Tests
+.coverage
+.hypothesis/
+htmlcov/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# ===================
+## LLM Tools
+# ===================
+.mcp/
+
+# Git worktrees — separate checkouts, never part of this repository.
+.worktrees/
+
+# Visual checks — Playwright captures; `just clean` removes the tree.
+screenshots/
