@@ -81,8 +81,11 @@ extend-select = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests assert. Every other suppression is inline, at the line it covers, with a reason.
+# Tests assert, and migrations are written by makemigrations, never by hand — annotating
+# one only makes the next generated one differ; a library can carry a Django part too.
+# Every other suppression is inline, at the line it covers, with a reason.
 "tests/**" = ["S101"]
+"**/migrations/**" = ["RUF012", "E501"]
 # The release numberer is the template's shared version.py, written to an
 # isort layout which keeps two lines after the imports where this project keeps ruff's default.
 "scripts/version.py" = ["I001"]
