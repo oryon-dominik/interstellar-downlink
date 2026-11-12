@@ -65,7 +65,7 @@ repos:
         args: [--multiline]
         stages: [commit-msg]
 -   repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.12.17
+    rev: 0.13.7
     hooks:
     -   id: uv-lock
 -   repo: https://gitlab.com/vojko.pribudic.foss/pre-commit-update

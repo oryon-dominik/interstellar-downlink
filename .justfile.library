@@ -43,3 +43,25 @@ _package := "downlink"
 [doc('Install all dependencies: the extras and the dependency groups')]
 @install-dependencies:
     uv sync --all-extras --all-groups
+
+
+[group('maintenance')]
+[doc('Mint a release on GitHub and wait for it: default, dev, rc, alpha, beta or post')]
+release mode="default":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    gh workflow run package-release.yml --ref trunk --field mode={{ mode }}
+    sleep 5
+    gh run watch "$(gh run list --workflow package-release.yml --limit 1 --json databaseId --jq '.[0].databaseId')" --exit-status
+    git pull --ff-only --tags origin trunk
+    git describe --tags --abbrev=0
+
+
+[group('maintenance')]
+[doc('Upload a release tag to PyPI. It waits for a reviewer on GitHub, and an upload is final')]
+publish tag:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    gh workflow run package-publish.yml --ref trunk --field tag={{ tag }}
+    sleep 5
+    gh run list --workflow package-publish.yml --limit 1 --json url --jq '.[0].url'

@@ -1,7 +1,7 @@
 # Changes here will be overwritten by Copier; answer questions in the template instead.
-_commit: 655cf83c6d5bfddf3906996c2372540b20ae0975
+_commit: 41a4edad046dd535c31d57681809f21be80a6dc1
 _src_path: gh:oryon-dominik/templates
-_version: 2026.11.40
+_version: 2026.11.47
 author_email: hallo+legal@cyberise.de
 author_name: cyberise GmbH
 browser_tests: false
