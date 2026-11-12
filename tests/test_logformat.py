@@ -113,6 +113,28 @@ def test_a_routine_message_at_error_level_is_still_trouble():
     assert logformat.is_trouble(logformat.ReadRecord(WHEN, "ERROR", "HTTP/2 skipped because it requires TLS"))
 
 
+CADDY_REFUSED = (
+    '{"level": "error", "ts": 1794476396.9, "logger": "http.log.error", '
+    '"msg": "dial tcp 127.0.0.1:8044: connectex: refused", '
+    '"request": {"method": "GET", "uri": "%s"}}'
+)
+
+
+def test_a_caddy_line_keeps_the_path_it_was_asked_for(tmp_path):
+    path = write_log(tmp_path / "caddy.log", [CADDY_REFUSED % "/pipeline/?page=2"])
+
+    (record,) = logformat.newest_first(path)
+
+    assert record.path == "/pipeline/?page=2"
+
+
+def test_a_dev_reload_stream_cut_by_a_restart_is_not_trouble(tmp_path):
+    """django-browser-reload reconnects several times a second while the dev server restarts (2026-11-12)."""
+    path = write_log(tmp_path / "caddy.log", [CADDY_REFUSED % "/__reload__/events/", CADDY_REFUSED % "/pipeline/"])
+
+    assert [record.path for record in logformat.newest_first(path) if logformat.is_trouble(record)] == ["/pipeline/"]
+
+
 @pytest.mark.parametrize("stamp", ['"inf"', "1e30", "true", '"soon"', "1"])
 def test_a_json_line_with_an_unusable_stamp_never_stops_the_reader(tmp_path, stamp):
     """Reading must outlive whatever another program wrote; a stamp no clock can show is not a record."""

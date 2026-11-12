@@ -41,14 +41,18 @@ ROUTINE = frozenset(
         "HTTP/3 skipped because it requires TLS",
     }
 )
+#: Requests whose failure is no news: django-browser-reload's stream reconnects several times a
+#: second while a dev server restarts, and every attempt is a refused dial in Caddy's log.
+ROUTINE_PATHS = ("/__reload__/",)
 
 
 class ReadRecord(NamedTuple):
-    """One entry read back from a log; `when` always carries an offset."""
+    """One entry read back from a log; `when` always carries an offset, `path` the request a proxy log names."""
 
     when: datetime.datetime
     level: str
     message: str
+    path: str = ""
 
 
 def lines_newest_first(path: Path, *, max_bytes: int = TAIL_BYTES) -> Iterator[str]:
@@ -124,7 +128,9 @@ def _json(line: str) -> ReadRecord | None:
     message = str(entry.get("msg", ""))
     if entry.get("error"):
         message = f"{message}: {entry['error']}"
-    return ReadRecord(when=when, level=_level(str(entry.get("level", ""))), message=message)
+    request = entry.get("request")
+    path = str(request.get("uri", "")) if isinstance(request, dict) else ""
+    return ReadRecord(when=when, level=_level(str(entry.get("level", ""))), message=message, path=path)
 
 
 def split_line(line: str) -> ReadRecord | None:
@@ -169,7 +175,9 @@ def records_since(path: Path, *, since: datetime.datetime) -> Iterator[ReadRecor
 
 
 def is_trouble(record: ReadRecord) -> bool:
-    """Is this a warning or error someone has to look at, not one of the `ROUTINE` warnings?"""
+    """Is this a warning or error someone has to look at, not a `ROUTINE` warning or a `ROUTINE_PATHS` request?"""
     if record.level == "WARNING" and record.message in ROUTINE:
+        return False
+    if record.path.startswith(ROUTINE_PATHS):
         return False
     return record.level in TROUBLE_LEVELS
