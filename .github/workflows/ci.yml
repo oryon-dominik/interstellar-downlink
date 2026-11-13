@@ -27,11 +27,10 @@ jobs:
         uses: j178/prek-action@v3.0.0
 
       # The step above runs the pre-commit stage only: commitlint and commit-scope never
-      # read a header in CI (measured 2026-10-07), so a clone without the commit-msg shim
-      # pushed whatever header it liked. Work lands on trunk without pull requests,
-      # so every pushed commit goes through the commit-msg stage here — the same hooks,
-      # the same pinned rules — before a release writes the changelog. Merges are left
-      # out: their header is the tool's, not the author's.
+      # read a header in CI, so a clone without the commit-msg shim could push any header.
+      # Here every pushed commit goes through the commit-msg stage — the same hooks, the
+      # same pinned rules — before a release writes the changelog. Merges are left out:
+      # their header is the tool's, not the author's.
       - name: Check every pushed commit header
         if: github.event_name == 'push'
         env:
