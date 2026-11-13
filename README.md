@@ -27,7 +27,7 @@ file, and whatever watches the logs reads the lines back as records.
 
 ## Install
 
-Requires Python 3.14 or newer. `downlink.tasks` also needs Django 6.0 or newer: take the `django` extra.
+Requires Python 3.14 or newer. `downlink.tasks` also needs Django 6.1 or newer: take the `django` extra.
 
 ```shell
 uv add cyberise-downlink

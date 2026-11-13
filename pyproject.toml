@@ -12,7 +12,6 @@ license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [
     "Framework :: Django",
-    "Framework :: Django :: 6.0",
     "Framework :: Django :: 6.1",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
