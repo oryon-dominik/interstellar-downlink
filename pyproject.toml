@@ -31,7 +31,7 @@ repository = "https://github.com/oryon-dominik/interstellar-downlink"
 [project.optional-dependencies]
 # downlink.tasks hooks into Django's task signals; nothing else imports Django.
 django = [
-    "django>=6.0",
+    "django>=6.1",
 ]
 
 # Groups, not extras: a consumer never installs the linter or the test runner.
@@ -41,7 +41,7 @@ dev = [
     "ruff>=0.16.0",
 ]
 test = [
-    "django>=6.0",
+    "django>=6.1",
     "django-scheduled-tasks>=0.3.0",
     "pytest>=8.4.2",
     # The release numberer dates by a named time zone, and Windows ships no zone database.
