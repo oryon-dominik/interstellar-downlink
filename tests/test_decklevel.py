@@ -164,6 +164,15 @@ def test_dropping_the_last_focus_without_a_level_removes_the_board(board: Path):
     assert not board.exists()
 
 
+def test_dropping_a_focus_trims_its_topic_as_setting_it_does(board: Path):
+    """`set_focus` stores the topic trimmed; the same spelling has to hand it back."""
+    decklevel.set_focus(board, topic=" heartbeats ", level="DEBUG", now=NOW)
+
+    decklevel.drop_focus(board, " heartbeats ", now=NOW)
+
+    assert not board.exists()
+
+
 def test_a_focus_lower_than_the_logger_opens_the_logger_and_closes_it_again(board: Path):
     """A logger held at INFO cannot say DEBUG — focus lowers it, and dropping focus restores it."""
     logger = logging.getLogger("decklevel.probe")

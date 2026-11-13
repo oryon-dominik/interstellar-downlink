@@ -119,7 +119,7 @@ def set_focus(board_path: Path, *, topic: str, level: str, now: datetime.datetim
 def drop_focus(board_path: Path, topic: str, *, now: datetime.datetime) -> Setting:
     """Hand one topic back to the deck level."""
     current = read(board_path)
-    kept = {name: n for name, n in current.focus.items() if name != topic}
+    kept = {name: n for name, n in current.focus.items() if name != topic.strip()}
     return _write(board_path, current._replace(focus=kept), now=now)
 
 
