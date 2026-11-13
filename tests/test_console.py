@@ -18,11 +18,17 @@ def berlin() -> datetime.tzinfo:
     return BERLIN
 
 
-def _rendered(handler: logging.Handler, *, level: int = logging.INFO, message: str = "docked") -> str:
+def _written(handler: downlink.ConsoleHandler) -> str:
+    file = handler.console.file
+    assert isinstance(file, io.StringIO)
+    return file.getvalue()
+
+
+def _rendered(handler: downlink.ConsoleHandler, *, level: int = logging.INFO, message: str = "docked") -> str:
     record = logging.LogRecord("shop", level, __file__, 1, message, None, None)
     record.created = SUMMER.timestamp()
     handler.handle(record)
-    return handler.console.file.getvalue()  # type: ignore[attr-defined]  # a ConsoleHandler on a StringIO
+    return _written(handler)
 
 
 def _plain() -> Console:
@@ -59,7 +65,7 @@ def test_a_running_task_s_line_stands_under_its_name():
     record.running_task = "send_invoices"
     handler = downlink.ConsoleHandler(zone=berlin, console=_plain())
     handler.handle(record)
-    assert "send_invoices │ sent 0" in handler.console.file.getvalue()  # type: ignore[attr-defined]
+    assert "send_invoices │ sent 0" in _written(handler)
 
 
 def test_a_line_outside_any_run_stands_alone():

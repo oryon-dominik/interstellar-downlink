@@ -2,13 +2,12 @@
 
 import datetime
 import logging
-from types import SimpleNamespace
 
 import pytest
 from django.apps import apps
 from django.core.exceptions import ImproperlyConfigured
 from django.core.management import call_command
-from django.tasks import task
+from django.tasks import TaskResult, TaskResultStatus, task
 from django.test import override_settings
 from django.utils import timezone
 from django_scheduled_tasks import periodic_task
@@ -20,7 +19,7 @@ from downlink import stamps, tasks
 inside = logging.getLogger("shop.commands")
 
 
-@periodic_task(interval=datetime.timedelta(minutes=15))
+@periodic_task(interval=datetime.timedelta(minutes=15))  # ty: ignore[call-non-callable]  # without task= it returns the decorator; the library annotates both outcomes as one union
 @task
 def send_invoices() -> None:
     """A task that goes well and says what it did."""
@@ -45,13 +44,15 @@ def scheduler_queues(monkeypatch: pytest.MonkeyPatch):
 
 
 @pytest.fixture
-def overdue_run_log(scheduler_queues):
-    """Give send_invoices a run log whose due time lies ten minutes back."""
+def overdue(scheduler_queues):
+    """Give send_invoices a run log whose due time lies ten minutes back, and yield that due time."""
     call_command("migrate", "django_scheduled_tasks", verbosity=0)
     (schedule,) = (each for each in scheduler.schedules if each.task.module_path == send_invoices.module_path)
     due = timezone.now() - datetime.timedelta(minutes=10)
-    run_log = ScheduledTaskRunLog.objects.create(task_hash=schedule.to_sha_hex(), next_scheduled_run_time=due)
-    yield run_log
+    run_log = ScheduledTaskRunLog.objects.create(  # ty: ignore[unresolved-attribute]  # Django adds the manager
+        task_hash=schedule.to_sha_hex(), next_scheduled_run_time=due
+    )
+    yield due
     run_log.delete()
 
 
@@ -85,10 +86,28 @@ def test_a_duration_reads_at_a_glance(seconds: float, shown: str):
     assert tasks.duration(seconds) == shown
 
 
+def _started(*, enqueued_at: datetime.datetime, started_at: datetime.datetime) -> TaskResult:
+    """A run of charge_order that left the queue at *started_at*."""
+    return TaskResult(
+        task=charge_order,
+        id="0193f2a4",
+        status=TaskResultStatus.RUNNING,
+        enqueued_at=enqueued_at,
+        started_at=started_at,
+        finished_at=None,
+        last_attempted_at=started_at,
+        args=[],
+        kwargs={},
+        backend="default",
+        errors=[],
+        worker_ids=[],
+    )
+
+
 def test_a_run_tells_how_long_it_waited_once_that_is_a_second():
     queued = datetime.datetime(2026, 11, 4, 8, 3, 45, tzinfo=datetime.UTC)
-    waiting = SimpleNamespace(enqueued_at=queued, started_at=queued + datetime.timedelta(seconds=4))
-    eager = SimpleNamespace(enqueued_at=queued, started_at=queued + datetime.timedelta(milliseconds=300))
+    waiting = _started(enqueued_at=queued, started_at=queued + datetime.timedelta(seconds=4))
+    eager = _started(enqueued_at=queued, started_at=queued + datetime.timedelta(milliseconds=300))
 
     assert tasks.waited(waiting) == "waited 4s"
     assert tasks.waited(eager) == ""
@@ -160,10 +179,10 @@ def test_django_writes_no_task_lines_of_its_own(caplog: pytest.LogCaptureFixture
 
 
 def test_the_scheduler_queues_with_its_schedule_lateness_and_next_run(
-    overdue_run_log: ScheduledTaskRunLog, caplog: pytest.LogCaptureFixture
+    overdue: datetime.datetime, caplog: pytest.LogCaptureFixture
 ):
     following = stamps.clock(
-        overdue_run_log.next_scheduled_run_time + datetime.timedelta(minutes=15),
+        overdue + datetime.timedelta(minutes=15),
         zone=timezone.get_default_timezone,
     )
 

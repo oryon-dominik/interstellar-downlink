@@ -16,6 +16,7 @@ def repository() -> Path:
 def version_script():
     """The release numberer, imported by path — `scripts` is no package."""
     spec = importlib.util.spec_from_file_location("release_version", repository() / "scripts" / "version.py")
+    assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     yield module

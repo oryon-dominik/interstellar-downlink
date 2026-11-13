@@ -49,6 +49,7 @@ def test_the_formatter_writes_the_stamp_into_asctime_and_the_reader_takes_it_bac
     line = formatter.format(_record(SUMMER.timestamp()))
     record = logformat.split_line(line)
 
+    assert record is not None
     assert line.startswith("ERROR 2026-09-25 11:56:50+02:00 ")
     assert record.when == SUMMER
     assert record.message == "lost contact"
@@ -74,6 +75,7 @@ def test_a_logging_configuration_hands_the_zone_through_the_factory_form():
 
     formatter = logging.getLogger("downlink-stamps").handlers[0].formatter
 
+    assert isinstance(formatter, downlink.StampFormatter)
     assert formatter.zone is berlin
     assert formatter.formatTime(_record(SUMMER.timestamp())) == "2026-09-25 11:56:50+02:00"
 

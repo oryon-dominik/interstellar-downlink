@@ -17,8 +17,9 @@ from downlink import files, logformat
 
 def _release(root: Path) -> None:
     """Close every handler holding a file under *root* — Windows cannot remove an open file."""
-    for logger in [logging.root, *logging.root.manager.loggerDict.values()]:
-        for handler in list(getattr(logger, "handlers", [])):
+    loggers = [each for each in logging.root.manager.loggerDict.values() if isinstance(each, logging.Logger)]
+    for logger in [logging.root, *loggers]:
+        for handler in list(logger.handlers):
             if Path(getattr(handler, "baseFilename", "") or "/").is_relative_to(root):
                 logger.removeHandler(handler)
                 handler.close()
@@ -87,14 +88,21 @@ def test_a_written_line_reads_back_as_the_record_it_was(tmp_path):
     assert record.when.tzinfo is not None
 
 
+class _OffsetStamp(logging.Formatter):
+    """Stamps asctime with an offset, the way a project's formatter does."""
+
+    def formatTime(self, record: logging.LogRecord, datefmt: str | None = None) -> str:
+        return "2026-11-02 09:30:00+01:00"
+
+
 def test_a_django_verbose_line_reads_back_as_its_record():
     """The verbose format, with an offset the way a project's formatter writes asctime."""
-    formatter = logging.Formatter(logformat.DJANGO_VERBOSE, style="{")
-    formatter.formatTime = lambda record, datefmt=None: "2026-11-02 09:30:00+01:00"
+    formatter = _OffsetStamp(logformat.DJANGO_VERBOSE, style="{")
     line = formatter.format(logging.LogRecord("shop", logging.ERROR, __file__, 1, "lost contact", None, None))
 
     record = logformat.split_line(line)
 
+    assert record is not None
     assert (record.level, record.message) == ("ERROR", "lost contact")
     assert record.when.isoformat() == "2026-11-02T09:30:00+01:00"
 
