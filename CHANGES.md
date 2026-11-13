@@ -2,6 +2,19 @@
 
 ---
 
+## [2026.11.3](https://github.com/oryon-dominik/interstellar-downlink/compare/2026.11.2..2026.11.3) - 2026-11-13
+
+### Types
+
+#### Testing
+
+- **(types)** fakes shaped like the real classes, optionals narrowed — ty is clean over the whole repository - ([21242d4](https://github.com/oryon-dominik/interstellar-downlink/commit/21242d4134e68a725d714a1f0a5b349c18455711))
+
+
+
+
+---
+
 ## [2026.11.2](https://github.com/oryon-dominik/interstellar-downlink/compare/2026.11.1..2026.11.2) - 2026-11-13
 
 ### Decklevel
