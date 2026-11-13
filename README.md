@@ -68,9 +68,8 @@ import logging
 
 import downlink
 from django.utils import timezone
-from downlink import decklevel
 
-BOARD = decklevel.board(BASE_DIR / "state")  # see "Switch every console at once"
+BOARD = BASE_DIR / "state" / "deck-loglevel.json"  # see "Switch every console at once"
 
 LOGGING = {
     "version": 1,
@@ -118,7 +117,7 @@ from pathlib import Path
 
 from downlink import decklevel
 
-board = decklevel.board(Path("state"))
+board = Path("state") / "deck-loglevel.json"
 now = datetime.datetime.now().astimezone()
 
 decklevel.set_level(board, "warning", now=now)                   # quiet every console

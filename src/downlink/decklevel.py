@@ -11,9 +11,9 @@ Two axes, kept apart: the **level** says how bad a line must be to reach any con
 name or a process's topic, matched as a dotted prefix, the longest match winning. A focus can
 open a topic below the deck level or quiet it above.
 
-The caller decides where the board lives: :func:`board` names it under a state directory the
-caller knows, and every function here takes that path. Without one there is no board and
-everything passes. Its shape, at ``<state>/events/deck-loglevel-<host>.json``::
+The caller decides where the board lives and hands that path to every function here. Without
+one there is no board and everything passes. Keep it local to the machine, never committed. Its
+shape::
 
     {"level": "WARNING", "focus": {"heartbeats": "DEBUG"}, "set_at": "<stamp with offset>"}
 
@@ -28,7 +28,6 @@ has opened below its own level.
 import datetime
 import json
 import logging
-import platform
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -53,11 +52,6 @@ class Setting(NamedTuple):
 
 
 EMPTY = Setting(level=None, focus={})
-
-
-def board(state: Path) -> Path:
-    """Return this machine's board under *state*: local, one per host, never committed."""
-    return state / "events" / f"deck-loglevel-{platform.node().lower()}.json"
 
 
 def _number(name: object) -> int | None:

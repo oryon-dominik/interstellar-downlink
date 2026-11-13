@@ -111,15 +111,6 @@ def test_the_board_carries_level_focus_and_an_offset_stamp(board: Path):
     assert written["set_at"] == "2026-11-02T09:30:00+01:00"
 
 
-def test_the_board_lives_under_the_state_directory_per_host(monkeypatch, tmp_path: Path):
-    """A local notice board among the events of a state directory the caller names."""
-    monkeypatch.setattr("platform.node", lambda: "PROBE")
-
-    path = decklevel.board(tmp_path)
-
-    assert path == tmp_path / "events" / "deck-loglevel-probe.json"
-
-
 # -- focus ---------------------------------------------------------------------
 
 
