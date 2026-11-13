@@ -1,6 +1,6 @@
 [project]
 name = "cyberise-downlink"
-version = "2026.11.1"
+version = "2026.11.2"
 description = "Multi-process Python logging: one line format, shared rotating files, crash capture, a live console switch"
 readme = "README.md"
 requires-python = ">=3.14"
