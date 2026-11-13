@@ -30,7 +30,7 @@ class Clock:
 @pytest.fixture
 def board(tmp_path: Path) -> Path:
     """A board path nobody has written yet."""
-    return tmp_path / "deck-loglevel-apollon.json"
+    return tmp_path / "deck-loglevel-probe.json"
 
 
 def test_without_a_board_every_line_passes(board: Path):
@@ -113,11 +113,11 @@ def test_the_board_carries_level_focus_and_an_offset_stamp(board: Path):
 
 def test_the_board_lives_under_the_state_directory_per_host(monkeypatch, tmp_path: Path):
     """A local notice board among the events of a state directory the caller names."""
-    monkeypatch.setattr("platform.node", lambda: "APOLLON")
+    monkeypatch.setattr("platform.node", lambda: "PROBE")
 
     path = decklevel.board(tmp_path)
 
-    assert path == tmp_path / "events" / "deck-loglevel-apollon.json"
+    assert path == tmp_path / "events" / "deck-loglevel-probe.json"
 
 
 # -- focus ---------------------------------------------------------------------

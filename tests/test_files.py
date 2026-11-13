@@ -135,7 +135,7 @@ def test_a_process_that_dies_leaves_its_traceback_in_the_file(tmp_path, monkeypa
     assert passed_on == [crash]
 
 
-def test_only_the_first_arm_takes_the_hooks(tmp_path):
+def test_only_the_first_configure_takes_the_hooks(tmp_path):
     """A second tool in the same process must not chain a second hook."""
     before = sys.excepthook
     downlink.configure(name="downlink-first", log_file=tmp_path / "first.log")
