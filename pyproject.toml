@@ -137,6 +137,8 @@ split_commits = false
 commit_parsers = [
     { message = "^build", group = "Build"},
     { message = "^ci", group = "Continuous Integration"},
+    # Taking a template release is upkeep of the repository, not a change to the package.
+    { message = '^chore\(template\)', skip = true},
     { message = "^chore", group = "Chores"},
     { message = "^docs", group = "Documentation"},
     { message = "^feat", group = "Features"},

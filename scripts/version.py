@@ -75,8 +75,7 @@ def project_pyproject() -> Path:
     """Find the project's pyproject, wherever its layout puts it.
 
     It sits in the root or under `application/`.
-    Deriving it from the tree beats hardcoding one shape in every copy of this
-    script — the same derivation `just audit` uses.
+    Deriving it from the tree beats hardcoding one shape.
     """
     root = Path.cwd()
     for candidate in (root / "pyproject.toml", root / "application" / "pyproject.toml"):
@@ -161,8 +160,8 @@ def expired(names: Iterable[str], *, year: int, month: int) -> list[str]:
     over — before that, deleting it would restart the candidate count at 1 and
     collide with the tag it already used.
 
-    Tags that do not read as CalVer are never returned. `latest` and whatever the
-    old scheme left behind are not the pipeline's to delete.
+    Tags that do not read as CalVer are never returned. `latest` is not the
+    pipeline's to delete.
     """
     matches = parsed(names)
     releases = sorted(
