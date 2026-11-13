@@ -21,7 +21,7 @@ classifiers = [
     "Topic :: System :: Logging",
     "Typing :: Typed",
 ]
-keywords = ["logging", "log-rotation", "multiprocess", "crash-reporting", "console", "django", "django-tasks"]
+keywords = ["logging", "log-rotation", "django", "django-tasks"]
 # The wheel names whoever its LICENSE names.
 authors = [{ name = "cyberise GmbH", email = "hallo+legal@cyberise.de" }]
 
