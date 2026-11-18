@@ -42,8 +42,9 @@ from django.utils import timezone
 
 from downlink import stamps
 
-#: The scheduler's management command: what it queues, it queues as the scheduler.
-SCHEDULER_COMMAND = "run_task_scheduler"
+#: The schedulers' management commands, as words of the command line: what they queue,
+#: they queue as the scheduler. django-scheduled-tasks has its own; nostromo a subcommand.
+SCHEDULER_COMMANDS = (("run_task_scheduler",), ("nostromo", "scheduler"))
 #: The logger django-scheduled-tasks writes its ``Enqueuing task`` line on.
 SCHEDULER_LOGGER = "django_scheduled_tasks.base"
 MARKS = {"queued": "○", "running": "▶", "ok": "✓", "fail": "✗"}
@@ -58,7 +59,12 @@ running: ContextVar[str | None] = ContextVar("running_task", default=None)
 
 def part(argv: list[str]) -> str:
     """Name the part this process plays when it queues a task: the scheduler, or any other."""
-    return "scheduler" if SCHEDULER_COMMAND in argv else "tasks"
+    runs = any(
+        argv[start : start + len(command)] == list(command)
+        for command in SCHEDULER_COMMANDS
+        for start in range(len(argv))
+    )
+    return "scheduler" if runs else "tasks"
 
 
 def duration(seconds: float) -> str:

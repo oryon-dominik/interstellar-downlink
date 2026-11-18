@@ -147,8 +147,9 @@ DOWNLINK_TASK_LOGGER_PREFIX = "shop"
 ```
 
 A logger name is the prefix, the part the process plays and the queue:
-`shop.worker.default` for a run, `shop.scheduler.default` for what the scheduler queued,
-`shop.tasks.default` for what any other process queued. With
+`shop.worker.default` for a run, `shop.scheduler.default` for what the scheduler queued —
+`run_task_scheduler` or `nostromo scheduler` — and `shop.tasks.default` for what any other
+process queued. With
 [django-scheduled-tasks](https://pypi.org/project/django-scheduled-tasks/) installed, the
 scheduler's line adds the schedule, the lateness and the next run. No other module imports Django.
 

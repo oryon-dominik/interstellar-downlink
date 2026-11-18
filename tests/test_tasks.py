@@ -117,6 +117,9 @@ def test_a_run_tells_how_long_it_waited_once_that_is_a_second():
     ("argv", "part"),
     [
         (["manage.py", "run_task_scheduler", "--no-reload"], "scheduler"),
+        (["manage.py", "nostromo", "scheduler", "--queue", "default"], "scheduler"),
+        (["manage.py", "nostromo", "worker", "--queue", "default"], "tasks"),
+        (["manage.py", "nostromo", "run", "apps.discover.tasks.scheduler"], "tasks"),
         (["manage.py", "db_worker"], "tasks"),
         (["manage.py", "runserver"], "tasks"),
     ],
