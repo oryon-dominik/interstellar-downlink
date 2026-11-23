@@ -5,6 +5,8 @@
 **/logs/**/*.log
 **/logs/**/*.log.*
 **/logs/**/*.lock
+# nostromo's day books, one file per queue and day
+**/logs/nostromo/
 
 # Editor settings
 .vscode/
