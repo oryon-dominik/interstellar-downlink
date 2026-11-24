@@ -64,7 +64,7 @@ wheels = [
 
 [[package]]
 name = "cyberise-downlink"
-version = "2026.11.3"
+version = "2026.11.4"
 source = { editable = "." }
 dependencies = [
     { name = "concurrent-log-handler" },

@@ -2,6 +2,27 @@
 
 ---
 
+## [2026.11.4](https://github.com/oryon-dominik/interstellar-downlink/compare/2026.11.3..2026.11.4) - 2026-11-24
+
+### Files
+
+#### Features
+
+- **(files)** [**breaking**] log files stamp milliseconds — DATE_FORMAT gives way to file_formatter - ([1a66e3c](https://github.com/oryon-dominik/interstellar-downlink/commit/1a66e3c085e01238ba6653e89c41e5372a680793))
+
+
+
+### Tasks
+
+#### Features
+
+- **(tasks)** name nostromo's scheduler as the scheduler — blueprint-26b165 moves the fleet onto it (26b1bb) - ([6430fb2](https://github.com/oryon-dominik/interstellar-downlink/commit/6430fb2219a067bac2e7fa0a823c7930188ea4d2))
+
+
+
+
+---
+
 ## [2026.11.3](https://github.com/oryon-dominik/interstellar-downlink/compare/2026.11.2..2026.11.3) - 2026-11-13
 
 ### Types
