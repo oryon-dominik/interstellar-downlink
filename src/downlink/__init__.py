@@ -12,9 +12,8 @@ from pathlib import Path
 from downlink.console import ConsoleHandler
 from downlink.crashlog import record_crashes
 from downlink.decklevel import NOTICE, DeckLevelFilter, allowed
-from downlink.files import configure
+from downlink.files import configure, file_formatter
 from downlink.logformat import (
-    DATE_FORMAT,
     DJANGO_VERBOSE,
     ERROR_LEVELS,
     LINE_FORMAT,
@@ -26,7 +25,6 @@ from downlink.logformat import (
 from downlink.stamps import StampFormatter, clock, stamp
 
 __all__ = [
-    "DATE_FORMAT",
     "DJANGO_VERBOSE",
     "ERROR_LEVELS",
     "LINE_FORMAT",
@@ -38,6 +36,7 @@ __all__ = [
     "allowed",
     "clock",
     "configure",
+    "file_formatter",
     "is_trouble",
     "newest_first",
     "record_crashes",

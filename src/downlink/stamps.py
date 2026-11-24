@@ -21,9 +21,9 @@ def _zoned(moment: datetime.datetime, zone: Zone | None) -> datetime.datetime:
     return moment.astimezone(zone() if zone else None)
 
 
-def stamp(moment: datetime.datetime, *, zone: Zone | None = None) -> str:
-    """Return the full stamp, `2026-09-25 11:56:50+02:00`, as a log file keeps it."""
-    return _zoned(moment, zone).isoformat(sep=" ", timespec="seconds")
+def stamp(moment: datetime.datetime, *, zone: Zone | None = None, sep: str = " ", timespec: str = "seconds") -> str:
+    """Return the full stamp, `2026-09-25 11:56:50+02:00`, as a log file keeps it; *timespec* is isoformat's."""
+    return _zoned(moment, zone).isoformat(sep=sep, timespec=timespec)
 
 
 def clock(moment: datetime.datetime, *, zone: Zone | None = None) -> str:
@@ -45,9 +45,14 @@ class StampFormatter(logging.Formatter):
         style: Literal["%", "{", "$"] = "%",
         *,
         zone: Zone | None = None,
+        sep: str = " ",
+        timespec: str = "seconds",
     ):
         super().__init__(fmt, datefmt, style)
         self.zone = zone
+        self.sep = sep
+        self.timespec = timespec
 
     def formatTime(self, record: logging.LogRecord, datefmt: str | None = None) -> str:
-        return stamp(datetime.datetime.fromtimestamp(record.created, tz=datetime.UTC), zone=self.zone)
+        moment = datetime.datetime.fromtimestamp(record.created, tz=datetime.UTC)
+        return stamp(moment, zone=self.zone, sep=self.sep, timespec=self.timespec)

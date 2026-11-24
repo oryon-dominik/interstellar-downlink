@@ -2,6 +2,7 @@
 
 import logging
 import logging.config
+import re
 import shutil
 import subprocess
 import sys
@@ -86,6 +87,40 @@ def test_a_written_line_reads_back_as_the_record_it_was(tmp_path):
     record = next(logformat.newest_first(log_file))
     assert (record.level, record.message) == ("WARNING", "pressure low")
     assert record.when.tzinfo is not None
+
+
+def test_a_file_line_stamps_milliseconds_and_its_offset(tmp_path):
+    """Files from many stations are merged into one list; a whole second cannot order two of them."""
+    log_file = tmp_path / "x.log"
+    logger = downlink.configure(name="downlink-milliseconds", log_file=log_file)
+
+    logger.info("ignition")
+
+    stamp, _, _ = _flushed(logger, log_file).partition(" ")
+    assert re.fullmatch(r"\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}[+-]\d\d:\d\d", stamp)
+
+
+def test_the_file_formatter_serves_a_logging_configuration(tmp_path):
+    """reactor and knowledge write the same file line through dictConfig, not a copy of the format."""
+    log_file = tmp_path / "x.log"
+    logging.config.dictConfig(
+        {
+            "version": 1,
+            "disable_existing_loggers": False,
+            "formatters": {"fleet": {"()": downlink.file_formatter}},
+            "handlers": {"file": {"class": "logging.FileHandler", "filename": str(log_file), "formatter": "fleet"}},
+            "loggers": {"downlink-dictconfig": {"handlers": ["file"], "level": "INFO", "propagate": False}},
+        }
+    )
+    logger = logging.getLogger("downlink-dictconfig")
+
+    logger.info("docked")
+
+    stamp, _, _ = _flushed(logger, log_file).partition(" ")
+    assert re.fullmatch(r"[\d:T-]+\.\d{3}[+-]\d\d:\d\d", stamp)
+    assert next(logformat.newest_first(log_file)).message == "docked"
+    for handler in logger.handlers:
+        handler.close()
 
 
 class _OffsetStamp(logging.Formatter):

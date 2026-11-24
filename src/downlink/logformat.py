@@ -1,15 +1,17 @@
 """Log lines as records: three formats, read back from the end of a file.
 
 The writing half names its formats here too, so a writer and its reader can never drift
-apart: :data:`LINE_FORMAT` with :data:`DATE_FORMAT` for a command-line tool's file,
-:data:`DJANGO_VERBOSE` for a Django project's files. Caddy's JSON lines are only read.
+apart: :data:`LINE_FORMAT` for a command-line tool's file, :data:`DJANGO_VERBOSE` for a
+Django project's files. Caddy's JSON lines are only read.
 
     Django verbose   ERROR 2026-10-06 08:05:00+02:00 module pid tid message
-    plain            2026-10-06T05:16:15+0200 WARNING message
+    plain            2026-10-06T05:16:15.120+02:00 WARNING message
     JSON             {"level": "error", "ts": 1791264264.1, "msg": "..."}  (Caddy)
 
-A Django stamp without an offset reads as local time. A line in none of the formats continues
-the record above it (a traceback). Every record carries its offset.
+A plain stamp in whole seconds and a ``+0200`` offset, as files were written before
+milliseconds, still reads. A Django stamp without an offset reads as local time. A line in
+none of the formats continues the record above it (a traceback). Every record carries its
+offset.
 """
 
 import datetime
@@ -18,9 +20,8 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import NamedTuple
 
-#: A command-line tool's file: ISO stamp with offset, padded level, message; %-style.
+#: A command-line tool's file: stamp, padded level, message; %-style, stamped by `files.file_formatter`.
 LINE_FORMAT = "%(asctime)s %(levelname)-7s %(message)s"
-DATE_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 #: A Django project's files, {-style; the project's formatter class writes asctime with its offset.
 DJANGO_VERBOSE = "{levelname} {asctime} {module} {process:d} {thread:d} {message}"
 #: How far back from the end one read goes; older entries are grep's job.

@@ -56,6 +56,21 @@ def test_a_plain_line_keeps_its_own_offset(tmp_path):
     assert (record.level, record.message) == ("WARNING", "reaped dead worker")
 
 
+def test_a_line_with_milliseconds_reads_beside_one_without(tmp_path):
+    """Files written before milliseconds still read; within one second the milliseconds order."""
+    path = write_log(
+        tmp_path / "app.log",
+        ["2026-11-23T11:10:00+0100 INFO before", "2026-11-24T11:10:00.250+01:00 INFO after"],
+    )
+
+    after, before = logformat.newest_first(path)
+
+    assert before.when == datetime.datetime(
+        2026, 11, 23, 11, 10, tzinfo=datetime.timezone(datetime.timedelta(hours=1))
+    )
+    assert after.when.microsecond == 250_000 and after.message == "after"
+
+
 def test_a_caddy_json_line_becomes_a_record_with_its_error(tmp_path):
     path = write_log(
         tmp_path / "caddy.log", ['{"level": "warn", "ts": 1791264264.1, "msg": "skipped", "error": "no TLS"}']

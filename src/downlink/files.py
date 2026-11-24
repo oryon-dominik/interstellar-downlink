@@ -17,7 +17,7 @@ from pathlib import Path
 
 from concurrent_log_handler import ConcurrentRotatingFileHandler
 
-from downlink import crashlog, logformat
+from downlink import crashlog, logformat, stamps
 
 # 2 MB × 3 backups keeps recent history without ever growing unbounded.
 MAX_BYTES = 2_000_000
@@ -25,6 +25,15 @@ BACKUP_COUNT = 3
 
 #: Whether this process's exception hooks are installed; the first configure installs them, once.
 _hooked = False
+
+
+def file_formatter() -> logging.Formatter:
+    """The line a tool's log file keeps: stamped to the millisecond with its offset, on the machine's clock.
+
+    Files from many stations are merged into one list, and a whole second cannot order two of
+    them. A logging configuration takes it as ``{"()": downlink.file_formatter}``.
+    """
+    return stamps.StampFormatter(logformat.LINE_FORMAT, sep="T", timespec="milliseconds")
 
 
 def configure(*, name: str, log_file: Path, level: str = "INFO", library: str | None = None) -> logging.Logger:
@@ -61,7 +70,7 @@ def configure(*, name: str, log_file: Path, level: str = "INFO", library: str | 
         logger.addHandler(logging.NullHandler())
         return logger
     handler = ConcurrentRotatingFileHandler(log_file, maxBytes=MAX_BYTES, backupCount=BACKUP_COUNT, encoding="utf-8")
-    handler.setFormatter(logging.Formatter(logformat.LINE_FORMAT, datefmt=logformat.DATE_FORMAT))
+    handler.setFormatter(file_formatter())
     logger.addHandler(handler)
     if library is not None and not (shared := logging.getLogger(library)).handlers:
         shared.setLevel(level.upper())
